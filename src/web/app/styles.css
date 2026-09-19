@@ -135,6 +135,8 @@ button:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-
 .markdown pre code { color: #cbd1c3; background: transparent; padding: 0; }
 .markdown :not(pre) > code { white-space: normal; overflow-wrap: anywhere; word-break: break-word; }
 .markdown blockquote { margin-left: 0; border-left: 2px solid #685344; padding-left: 14px; color: #a8afa1; }
+.markdown .katex-display { overflow-x: auto; overflow-y: hidden; padding: 2px 0; }
+.markdown .katex { font-size: 1.05em; }
 .thinking, .tool-card { margin: 10px 0; border: 1px solid var(--line); border-radius: 8px; background: #101310; overflow: hidden; }
 .thinking summary, .tool-card summary { cursor: pointer; padding: 9px 11px; color: #969d90; font-size: 11px; list-style: none; display: flex; align-items: center; gap: 8px; }
 .tool-card summary span { width: 19px; height: 19px; display: grid; place-items: center; border-radius: 5px; background: #252a22; color: #b2bb9f; }
