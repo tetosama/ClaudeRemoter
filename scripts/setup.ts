@@ -36,9 +36,12 @@ try {
   // First setup.
 }
 
+const defaultPort = Number(process.env.CLAUDE_REMOTER_PORT || previous.port || 8443);
+const port = await readPort(defaultPort);
+
 const config: StoredConfig = {
   host: process.env.CLAUDE_REMOTER_HOST || previous.host || "0.0.0.0",
-  port: Number(process.env.CLAUDE_REMOTER_PORT || previous.port || 8443),
+  port,
   claudePath: process.env.CLAUDE_PATH ? resolve(process.env.CLAUDE_PATH) : previous.claudePath || findClaude(),
   projectRoot: resolve(process.env.CLAUDE_REMOTER_PROJECT_ROOT || previous.projectRoot || homedir()),
   localHostname,
@@ -63,6 +66,27 @@ function findClaude(): string {
 async function writePrivateJson(path: string, value: unknown): Promise<void> {
   await writeFile(path, `${JSON.stringify(value, null, 2)}\n`, { mode: 0o600 });
   await chmod(path, 0o600);
+}
+
+async function readPort(defaultPort: number): Promise<number> {
+  if (process.env.CLAUDE_REMOTER_PORT || !process.stdin.isTTY) return defaultPort;
+  const answer = (await readLine(`Listen port (press Enter for ${defaultPort}): `)).trim();
+  if (!answer) return defaultPort;
+  const port = Number(answer);
+  if (!Number.isInteger(port) || port < 1 || port > 65535) throw new Error("Port must be an integer between 1 and 65535");
+  return port;
+}
+
+async function readLine(prompt: string): Promise<string> {
+  process.stdout.write(prompt);
+  process.stdin.setEncoding("utf8");
+  return await new Promise<string>((resolveLine) => {
+    const onData = (chunk: string) => {
+      process.stdin.off("data", onData);
+      resolveLine(chunk);
+    };
+    process.stdin.on("data", onData);
+  });
 }
 
 async function readSecret(prompt: string): Promise<string> {
