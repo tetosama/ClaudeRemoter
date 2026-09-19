@@ -1,4 +1,6 @@
+import { once } from "node:events";
 import { execFileSync } from "node:child_process";
+import { createInterface } from "node:readline/promises";
 import { chmod, mkdir, readFile, writeFile } from "node:fs/promises";
 import { homedir } from "node:os";
 import { join, resolve } from "node:path";
@@ -70,23 +72,19 @@ async function writePrivateJson(path: string, value: unknown): Promise<void> {
 
 async function readPort(defaultPort: number): Promise<number> {
   if (process.env.CLAUDE_REMOTER_PORT || !process.stdin.isTTY) return defaultPort;
-  const answer = (await readLine(`Listen port (press Enter for ${defaultPort}): `)).trim();
-  if (!answer) return defaultPort;
-  const port = Number(answer);
-  if (!Number.isInteger(port) || port < 1 || port > 65535) throw new Error("Port must be an integer between 1 and 65535");
-  return port;
-}
-
-async function readLine(prompt: string): Promise<string> {
-  process.stdout.write(prompt);
-  process.stdin.setEncoding("utf8");
-  return await new Promise<string>((resolveLine) => {
-    const onData = (chunk: string) => {
-      process.stdin.off("data", onData);
-      resolveLine(chunk);
-    };
-    process.stdin.on("data", onData);
-  });
+  const rl = createInterface({ input: process.stdin, output: process.stdout });
+  try {
+    const answer = (await Promise.race([
+      rl.question(`Listen port (press Enter for ${defaultPort}): `),
+      once(rl, "close").then(() => ""),
+    ])).trim();
+    if (!answer) return defaultPort;
+    const port = Number(answer);
+    if (!Number.isInteger(port) || port < 1 || port > 65535) throw new Error("Port must be an integer between 1 and 65535");
+    return port;
+  } finally {
+    rl.close();
+  }
 }
 
 async function readSecret(prompt: string): Promise<string> {
