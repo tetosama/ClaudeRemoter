@@ -30,7 +30,7 @@ const SESSION_COOKIE = "ccr_session";
 const loginBody = z.object({ password: z.string().min(1).max(256) });
 const projectBody = z.object({ path: z.string().min(1).max(4096) });
 const createSessionBody = z.object({
-  projectId: z.string().uuid(), model: z.string().min(1).max(256), permissionMode: z.enum(PERMISSION_MODES),
+  projectId: z.string().min(1).max(4096), model: z.string().min(1).max(256), permissionMode: z.enum(PERMISSION_MODES),
   effortLevel: z.enum(EFFORT_LEVELS).default("default"),
 });
 const forkBody = z.object({ messageId: z.string().min(1).max(128), title: z.string().max(120).optional() });

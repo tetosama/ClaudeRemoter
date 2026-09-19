@@ -10,7 +10,7 @@
     "setup": "tsx scripts/setup.ts",
     "dev": "NODE_ENV=development tsx watch src/server/index.ts",
     "build": "npm run typecheck && vite build && tsc -p tsconfig.server.json",
-    "start": "NODE_ENV=production node dist/src/server/index.js",
+    "start": "npm run build && NODE_ENV=production node dist/src/server/index.js",
     "typecheck": "tsc --noEmit -p tsconfig.json && tsc --noEmit -p tsconfig.server.json",
     "test": "vitest run",
     "test:watch": "vitest",
